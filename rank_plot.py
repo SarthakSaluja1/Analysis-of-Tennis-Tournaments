@@ -1,3 +1,8 @@
+'''
+This file contains functions that help in plotting the ranks in last 52 weeks 
+'''
+
+
 import structure_tournaments as st
 import tournament_stats as ts
 

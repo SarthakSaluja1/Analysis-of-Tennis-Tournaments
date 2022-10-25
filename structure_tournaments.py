@@ -1,5 +1,22 @@
+'''
+This file contains functions that help with cleaning and returning
+list of tournaments in a way that can be used for final analysis
+'''
+
 from itertools import groupby
 import tournament_stats as ts
+
+def grouping(lst) :
+    '''
+    Groups a list by consecutive tournaments.
+    Assumes a sorted list object where each list
+    within represents tennis matches. Returns a grouped list of tournaments and their matches
+    '''
+    grouped_lst = []
+    for k, g in groupby(lst,  lambda x: (x[0], x[1])) :
+       grouped_lst.append(list(g))    # Store group iterator as a list
+    return grouped_lst
+
 
 def get_winner(lst) :
     '''
@@ -15,15 +32,23 @@ def get_winner(lst) :
         set_3 = row[10]
         if row[11] == 'Completed' : #For completed matches
             i = 0
+
+            # Clean string containing scores in each set and store the results
+            # in a list of list
+
             set_1 = set_1.split('-')
             set_1 = [int(i) for i in set_1]
             set_2 = set_2.split('-')
             set_2 = [int(i) for i in set_2]
 
+            # A player wins a match if the number of sets they win is greater than
+            # the number of sets won by the opponent
+
             if set_1[0] > set_1[1] :
                 i += 1
             if set_2[0] > set_2[1] :
                 i += 1
+
             if set_3 != '' : #Match going to third set
                 set_3 = set_3.split('-')
                 set_3 = [int(i) for i in set_3]
@@ -42,42 +67,37 @@ def get_winner(lst) :
                 row.append(player_2)
 
 
-def grouping(lst) :
-    '''
-    Groups a list by consecutive tournaments.
-    Assumes a sorted list object where each list
-    within represents tennis matches. Returns a grouped list of tournaments and their matches
-    '''
-    grouped_lst = []
-    for k, g in groupby(lst,  lambda x: (x[0], x[1])) :
-       grouped_lst.append(list(g))    # Store group iterator as a list
-    return grouped_lst
-
 def reconstruct_tournament(lst, round_robin) :
     '''
     Assumes a list of matches grouped by tournaments and list
     containing names of round robin tournaments.
     Modifies list in place to add the round for each match played.
     '''
+
+    # Get the total matches, total participants and number of rounds of each tournament
+
     total_matches, total_participants, total_rounds = ts.tournament_stats(lst)
 
     for tournament in lst :
         count = [] #List containing the number of appearences by a player in the tournament
         sf_loser = [] #List containing players losing in semi finals to later calculate third place matches
         participants = set() #Set containing all participants in the tournament for calculating 'byes'
-        name = tournament[0][0] #Name of the tournament
-        date = str(tournament[0][1]) #Tournament start date
-        year = str(tournament[0][1].year) #Tournament start year
-        tourney = name + ' ' + date #To access dictionary
-        name_y = name + ' ' + year #To check if row in round robin
-        no_of_players = total_participants[tourney] #calculates the number of players in tournament
-        no_of_matches = total_matches[tourney] #calculates the number of matches in tournament
-        rounds = total_rounds[tourney] #calculates the number of rounds in a tournament
+        name = tournament[0][0] # Name of the tournament
+        date = str(tournament[0][1]) # Tournament start date
+        year = str(tournament[0][1].year) # Tournament start year
+        tourney = name + ' ' + date # To access dictionary
+        name_y = name + ' ' + year # To check if row in round robin
+        no_of_players = total_participants[tourney] # stores the number of players in tournament
+        no_of_matches = total_matches[tourney] # stores the number of matches in tournament
+        rounds = total_rounds[tourney] # stores the number of rounds in a tournament
+
         if name_y not in round_robin : #Different algorithm for RR tourneys
+
             for match in tournament : #iterate through all matches in the tournament
                 i = 1
                 player_1 = match[4] #Stores player1
                 player_2 = match[5] #Stores player2
+
                 if (player_1 in sf_loser) or (player_2 in sf_loser) : #Third place match can only happen after semifinals
                         match.append('Third Place')
                 else :

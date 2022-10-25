@@ -1,3 +1,8 @@
+'''
+This file contains functions that are used to calculate some crucial
+statistics of a tournament
+'''
+
 import math
 import structure_tournaments as st
 
@@ -86,7 +91,7 @@ def get_weighted_rank(grouped_lst, rounds) :
         for m in t :
             players.add(m[4])
             players.add(m[5])
-                    
+
     output = {players : 0 for players in players}
     n_rounds = rounds
     for tournament in grouped :
